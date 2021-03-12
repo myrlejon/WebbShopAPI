@@ -1,0 +1,21 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+using Microsoft.EntityFrameworkCore;
+using WebbShopAPI.Models;
+
+namespace WebbShopAPI.Database
+{
+    public class DatabaseContext : DbContext
+    {
+        private const string DatabaseName = "WebbShopNilsOdén";
+        public DbSet<User> Users { get; set; }
+        public DbSet<Book> Books { get; set; }
+        public DbSet<BookCategory> BookCategory { get; set; }
+        public DbSet<SoldBooks> SoldBooks { get; set; }
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseSqlServer($@"Server=DESKTOP-NJ9EFR0;Database={DatabaseName}; Trusted_Connection = true;");
+        }
+    }
+}

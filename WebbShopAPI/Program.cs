@@ -1,4 +1,5 @@
 ﻿using System;
+using WebbShopAPI.Database;
 
 namespace WebbShopAPI
 {
@@ -6,7 +7,7 @@ namespace WebbShopAPI
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            Seeder.Seed();
         }
     }
 }
