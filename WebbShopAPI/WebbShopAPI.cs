@@ -13,26 +13,36 @@ namespace WebbShopAPI
 {
     public class WebbShopAPI
     {
-        public void Login()
+        public int Login(string username, string password)
+        {
+            int ID = 0;
+            using (var db = new DatabaseContext())
+            {
+                if (db.Users.Count() > 0)
+                {
+                    foreach (User user in db.Users)
+                    {
+                        if (username == user.Name && password == user.Password)
+                        {
+                            user.SessionTimer = DateTime.Now;
+                            DateTime newTime = user.SessionTimer.AddMinutes(15);
+                            user.SessionTimer = newTime;
+                            ID = user.ID;
+                        }
+                    }
+                }
+                db.SaveChanges();
+            }
+            return ID;
+        }
+
+        public DateTime Logout(int ID)
         {
             using (var db = new DatabaseContext())
             {
-                //Console.WriteLine("Username: ");
-                //string userInput = Console.ReadLine();
-                //if (db.Users.FirstOrDefault(u=>u.Name == userInput) != null)
-                //{
-                //    Console.WriteLine("Password: ");
-                //    string passInput = Console.ReadLine();
-                //    if (db.Users.FirstOrDefault(p=>p.Password == passInput= != null)
-                //    {
-
-                //    }
-
-                //}
-                //else if (db.Users.FirstOrDefault(u=>u.Name==userInput) == null)
-                //{
-                //    Console.WriteLine("Den användaren finns inte i registret.");
-                //}
+                var user = db.Users.FirstOrDefault(u => u.ID == ID);
+                user.SessionTimer = DateTime.Now;
+                return user.SessionTimer;
             }
         }
 
@@ -47,31 +57,19 @@ namespace WebbShopAPI
             }
         }
 
-        public void GetCategories(string keyword)
+        public List<BookCategory> GetCategories(string keyword)
         {
             using (var db = new DatabaseContext())
             {
-                List<string> booklist = new List<string>();
-                foreach (var book in db.BookCategory)
+                List<BookCategory> booklist = new List<BookCategory>();
+                foreach (BookCategory book in db.BookCategory)
                 {
-                    booklist.Add(book.Name);
+                    if (book.Name.Contains(keyword))
+                    {
+                        booklist.Add(book);
+                    }
                 }
-                var contains = booklist.Contains(keyword);
-
-                foreach (var book in booklist)
-                {
-                    contains = booklist.Contains(keyword);
-                }
-
-                if (contains)
-                {
-                    Console.WriteLine($"Kategorin {keyword} finns i databasen.");
-                }
-
-                else if (contains == false)
-                {
-                    Console.WriteLine($"Kategorin {keyword} finns inte i databasen.");
-                }
+                return booklist;
             }
         }
 
@@ -85,6 +83,49 @@ namespace WebbShopAPI
 
         }
 
+        public void GetAvailableBooks(int ID)
+        {
+            using (var db = new DatabaseContext())
+            {
+                var category = db.BookCategory.FirstOrDefault(c => c.ID == ID);
+                if (category != null)
+                {
+                Console.WriteLine($"Listar upp alla böcker med kategorin {category.Name}.");
+                    foreach (var book in db.Books)
+                    {
+                        if (book.Amount > 0 && book.CategoryID == ID)
+                        {
+                            Console.WriteLine($"{book.Title} - {book.Price}kr - Det finns {book.Amount} böcker kvar.");
+                        }
+                    }
+                }
+                else if (category == null)
+                {
+                    Console.WriteLine($"Det finns ingen kategori med kategorinummer {ID}.");
+                }
+            }
+        }
 
+        public void GetBook(int ID)
+        {
+            using (var db = new DatabaseContext())
+            {
+                var book = db.Books.FirstOrDefault(b => b.ID == ID);
+                if (book != null)
+                {
+                    var category = db.BookCategory.FirstOrDefault(c => c.ID == book.CategoryID);
+                    Console.WriteLine($"{book.Title} är en {category.Name} bok skriven av {book.Author}. Boken kostar {book.Price}kr och det finns {book.Amount} kvar i lagret.");
+                }
+                else if (book == null)
+                {
+                    Console.WriteLine($"Det finns ingen bok med ID-nummer {ID}.");
+                }
+            }
+        }
+
+        public void GetBooks(string keyword)
+        {
+
+        }
     }
 }

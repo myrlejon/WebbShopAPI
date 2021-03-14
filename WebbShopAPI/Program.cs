@@ -1,6 +1,7 @@
 ﻿using System;
 using WebbShopAPI.Database;
 using System.Linq;
+using WebbShopAPI.Models;
 
 namespace WebbShopAPI
 {
@@ -10,7 +11,8 @@ namespace WebbShopAPI
         {
             var API = new WebbShopAPI();
             Seeder.Seed();
-            API.GetCategory(2);
+            var test = API.Login("Administrator", "CodicRulez");
+            Console.WriteLine(test);
         }
     }
 }

@@ -12,7 +12,7 @@ namespace WebbShopAPI.Models
         public int ID { get; set; }
         public string Name { get; set; }
         public string Password { get; set; }
-        public DateTime SessionTimer { get; set; }
+        public DateTime SessionTimer { get; set; } = DateTime.Now;
         public bool IsActive { get; set; } = true;
         public bool IsAdmin { get; set; } = false;
     }
