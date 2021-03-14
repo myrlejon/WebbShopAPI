@@ -1,13 +1,16 @@
 ﻿using System;
 using WebbShopAPI.Database;
+using System.Linq;
 
 namespace WebbShopAPI
 {
-    class Program
+    class Program : WebbShopAPI
     {
-        static void Main(string[] args)
+        static void Main()
         {
+            var API = new WebbShopAPI();
             Seeder.Seed();
+            API.GetCategory(2);
         }
     }
 }

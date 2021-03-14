@@ -10,8 +10,8 @@ using WebbShopAPI.Database;
 namespace WebbShopAPI.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20210310202235_Tabeller")]
-    partial class Tabeller
+    [Migration("20210312092723_FreshStartr")]
+    partial class FreshStartr
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -109,8 +109,8 @@ namespace WebbShopAPI.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Password")
-                        .HasColumnType("int");
+                    b.Property<string>("Password")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("SessionTimer")
                         .HasColumnType("datetime2");

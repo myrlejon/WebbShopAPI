@@ -16,8 +16,8 @@ namespace WebbShopAPI.Database
                 {
                     db.Users.AddRange(new List<User>
                     {
-                        new User { Name = "Administrator", Password = "CodicRulez", IsAdmin = true },
-                        new User { Name = "TestCustomer", Password = "Codic2021", IsAdmin = false }
+                        new User {Name = "Administrator", Password = "CodicRulez", IsAdmin = true },
+                        new User {Name = "TestCustomer", Password = "Codic2021", IsAdmin = false }
                     });
                     db.SaveChanges();
                 }
@@ -26,8 +26,8 @@ namespace WebbShopAPI.Database
                 {
                     db.BookCategory.AddRange(new List<BookCategory>
                     {
-                        new BookCategory { Name = "Horror"},
-                        new BookCategory { Name = "Science Fiction"}
+                        new BookCategory {Name = "Horror"},
+                        new BookCategory {Name = "Science Fiction"}
                     });
                     db.SaveChanges();
                 }
@@ -44,8 +44,8 @@ namespace WebbShopAPI.Database
                     db.SaveChanges();
                 }
 
-
                 
+
             }
         }
     }
