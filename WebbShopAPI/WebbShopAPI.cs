@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 // Påminnelse, kom ihåg att allt ska vara public i denna klassen.
 // Påminnelse, programmet behöver inte ha en Meny. Alla metoder körs i main.
+// TODO: Gör om så att alla API metoder returnerar ett värde.
 
 namespace WebbShopAPI
 {
@@ -25,7 +26,7 @@ namespace WebbShopAPI
                         if (username == user.Name && password == user.Password)
                         {
                             user.SessionTimer = DateTime.Now;
-                            DateTime newTime = user.SessionTimer.AddMinutes(15);
+                            DateTime newTime = user.SessionTimer.AddMinutes(15); //Ändra till 15 min sen.
                             user.SessionTimer = newTime;
                             ID = user.ID;
                         }
@@ -36,12 +37,29 @@ namespace WebbShopAPI
             return ID;
         }
 
+        public bool CheckSession(int ID)
+        {
+            using (var db = new DatabaseContext())
+            {
+                var user = db.Users.FirstOrDefault(u => u.ID == ID);
+                if (DateTime.Now > user.SessionTimer)
+                {
+                    return false;
+                }
+                else
+                {
+                    return true;
+                }
+            }
+        }
+
         public DateTime Logout(int ID)
         {
             using (var db = new DatabaseContext())
             {
                 var user = db.Users.FirstOrDefault(u => u.ID == ID);
                 user.SessionTimer = DateTime.Now;
+                db.SaveChanges();
                 return user.SessionTimer;
             }
         }
@@ -123,9 +141,117 @@ namespace WebbShopAPI
             }
         }
 
-        public void GetBooks(string keyword)
+        public List<Book> GetBooks(string keyword)
         {
-
+            using (var db = new DatabaseContext())
+            {
+                List<Book> booklist = new List<Book>();
+                foreach (Book book in db.Books)
+                {
+                    if (book.Title.Contains(keyword))
+                    {
+                        booklist.Add(book);
+                    }
+                }
+                return booklist;
+            }
         }
+
+        public List<Book> GetAuthors(string keyword)
+        {
+            using (var db = new DatabaseContext())
+            {
+                List<Book> booklist = new List<Book>();
+                foreach (Book book in db.Books)
+                {
+                    if (book.Author.Contains(keyword))
+                    {
+                        booklist.Add(book);
+                    }
+                }
+                return booklist;
+            }
+        }
+
+        public bool BuyBook(int userID, int bookID)
+        {
+            using (var db = new DatabaseContext())
+            {
+                {
+                    bool sold = false;
+                    var user = db.Users.FirstOrDefault(u => u.ID == userID);
+                    var book = db.Books.FirstOrDefault(u => u.ID == bookID);
+
+                    if (user != null && book != null)
+                    {
+                        bool session = CheckSession(user.ID);
+                        if (session)
+                        {
+                            db.SoldBooks.Add(new SoldBooks
+                            {
+                                Title = book.Title,
+                                Author = book.Author,
+                                Price = book.Price,
+                                PurchasedDate = user.SessionTimer,
+                                CategoryId = book.CategoryID,
+                                UserID = user.ID
+                            });
+                            sold = true;
+                            db.SaveChanges();
+                        }
+                    }
+                    return sold;
+                }
+            }
+        }
+
+
+        public string Ping(int ID)
+        {
+            using (var db = new DatabaseContext())
+            {
+                var user = db.Users.FirstOrDefault(u => u.ID == ID);
+                string pong = "";
+                if (user != null)
+                {
+                    if (CheckSession(ID))
+                    {
+                        pong = "Pong";
+                        user.SessionTimer = DateTime.Now;
+                        DateTime newTime = user.SessionTimer.AddMinutes(15);
+                        user.SessionTimer = newTime;
+                    }
+                }
+                db.SaveChanges();
+                return pong;
+            }
+        }
+
+        public bool Register(string username, string password, string passwordVerify)
+        {
+            using (var db = new DatabaseContext())
+            {
+                bool create = false;
+                var user = db.Users.FirstOrDefault(u => u.Name == username);
+                if (user == null && password == passwordVerify)
+                {
+                    db.Users.Add(new User
+                    {
+                        Name = username,
+                        Password = password,
+                    });
+                    db.SaveChanges();
+                    create = true;
+                }
+                return create;
+            }
+        }
+
+        //public bool AddBook(int adminID, int ID, string title, string author, string price, string amount)
+        //{
+        //    using (var db = new DatabaseContext())
+        //}
+
+
     }
 }
