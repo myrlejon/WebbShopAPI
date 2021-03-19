@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace WebbShopAPI.Migrations
 {
-    public partial class FreshStartr : Migration
+    public partial class FreshStart : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

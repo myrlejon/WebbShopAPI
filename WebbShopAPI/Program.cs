@@ -11,8 +11,9 @@ namespace WebbShopAPI
         {
             var API = new WebbShopAPI();
             Seeder.Seed();
-            var register = API.Register("test", "secret", "secret");
-            Console.WriteLine(register);
+            var test = API.Login("test", "secret");
+            //API.InactivateUser(1, 3);
+            Console.WriteLine(test);
         }
     }
 }

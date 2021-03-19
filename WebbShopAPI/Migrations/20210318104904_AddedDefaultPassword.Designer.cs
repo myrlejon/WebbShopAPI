@@ -10,8 +10,8 @@ using WebbShopAPI.Database;
 namespace WebbShopAPI.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20210315162920_AddedMoreMethods")]
-    partial class AddedMoreMethods
+    [Migration("20210318104904_AddedDefaultPassword")]
+    partial class AddedDefaultPassword
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

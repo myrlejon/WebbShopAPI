@@ -2,7 +2,7 @@
 
 namespace WebbShopAPI.Migrations
 {
-    public partial class AddedMoreMethods : Migration
+    public partial class AddedDefaultPassword : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
