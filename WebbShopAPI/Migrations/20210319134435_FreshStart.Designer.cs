@@ -10,7 +10,7 @@ using WebbShopAPI.Database;
 namespace WebbShopAPI.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20210316110718_FreshStart")]
+    [Migration("20210319134435_FreshStart")]
     partial class FreshStart
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

@@ -12,6 +12,12 @@ namespace WebbShopAPI
 {
     public class WebbShopAPI
     {
+        /// <summary>
+        /// Denna metoden Loggar in användaren i 15 minuter.
+        /// </summary>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
         public int Login(string username, string password)
         {
             int ID = 0;
@@ -31,24 +37,11 @@ namespace WebbShopAPI
             return ID;
         }
 
-        public bool UpdateSession(int ID)
-        {
-            using (var db = new DatabaseContext())
-            {
-                bool update = false;
-                var user = db.Users.FirstOrDefault(u => u.ID == ID);
-
-                if (DateTime.Now < user.SessionTimer)
-                {
-                    user.SessionTimer = DateTime.Now;
-                    DateTime newTime = user.SessionTimer.AddMinutes(15);
-                    user.SessionTimer = newTime;
-                    update = true;
-                }
-                return update;
-            }
-        }
-
+        /// <summary>
+        /// Denna metod loggar ut användaren.
+        /// </summary>
+        /// <param name="ID"></param>
+        /// <returns></returns>
         public DateTime Logout(int ID)
         {
             using (var db = new DatabaseContext())
@@ -60,6 +53,9 @@ namespace WebbShopAPI
             }
         }
 
+        /// <summary>
+        /// Denna metod listar upp alla bokkategorier.
+        /// </summary>
         public void GetCategories()
         {
             using (var db = new DatabaseContext())
@@ -71,6 +67,11 @@ namespace WebbShopAPI
             }
         }
 
+        /// <summary>
+        /// Denna metod listar upp alla bokkategorier som matchar parametern som skrivs in.
+        /// </summary>
+        /// <param name="keyword"></param>
+        /// <returns></returns>
         public List<BookCategory> GetCategories(string keyword)
         {
             using (var db = new DatabaseContext())
@@ -87,6 +88,11 @@ namespace WebbShopAPI
             }
         }
 
+        /// <summary>
+        /// Denna metod listar upp den kategori som matchar med det ID som matas in.
+        /// </summary>
+        /// <param name="ID"></param>
+        /// <returns></returns>
         public List<Book> GetCategory(int ID)
         {
             using (var db = new DatabaseContext())
@@ -107,6 +113,11 @@ namespace WebbShopAPI
             }
         }
 
+        /// <summary>
+        /// Denna metod tar in ett kategori ID och returnerar en lista av alla böcker som finns inom just den bokkategorin.
+        /// </summary>
+        /// <param name="ID"></param>
+        /// <returns></returns>
         public List<Book> GetAvailableBooks(int ID)
         {
             using (var db = new DatabaseContext())
@@ -127,6 +138,11 @@ namespace WebbShopAPI
             }
         }
 
+        /// <summary>
+        /// Denna metod tar in ID och returnerar en bok om den finns i databasen.
+        /// </summary>
+        /// <param name="ID"></param>
+        /// <returns></returns>
         public Book GetBook(int ID)
         {
             using (var db = new DatabaseContext())
@@ -136,6 +152,11 @@ namespace WebbShopAPI
             }
         }
 
+        /// <summary>
+        /// Denna metod listar upp alla böcker som matchar med parametern som skrivs in.
+        /// </summary>
+        /// <param name="keyword"></param>
+        /// <returns></returns>
         public List<Book> GetBooks(string keyword)
         {
             using (var db = new DatabaseContext())
@@ -152,6 +173,11 @@ namespace WebbShopAPI
             }
         }
 
+        /// <summary>
+        /// Denna metod listar upp alla författare som matchar med parametern som skrivs in.
+        /// </summary>
+        /// <param name="keyword"></param>
+        /// <returns></returns>
         public List<Book> GetAuthors(string keyword)
         {
             using (var db = new DatabaseContext())
@@ -168,6 +194,12 @@ namespace WebbShopAPI
             }
         }
 
+        /// <summary>
+        /// Denna metod används för att användare ska kunna köpa böcker. Om användaren inte är inloggad så går det inte att köpa något.
+        /// </summary>
+        /// <param name="userID"></param>
+        /// <param name="bookID"></param>
+        /// <returns></returns>
         public bool BuyBook(int userID, int bookID)
         {
             using (var db = new DatabaseContext())
@@ -190,6 +222,7 @@ namespace WebbShopAPI
                         });
                         book.Amount--;
                         sold = true;
+                        Ping(userID);
                         db.SaveChanges();
                     }
                     return sold;
@@ -197,6 +230,12 @@ namespace WebbShopAPI
             }
         }
 
+        /// <summary>
+        /// Denna metoden kollar om en användare är inloggad, och ifall användaren är inloggad så ökar SessionTimer med 15 minuter.
+        /// Denna metoden finns inuti andra metoder som kräver ett ID ifrån användaren. Detta är till för att hålla anslutningen vid liv.
+        /// </summary>
+        /// <param name="ID"></param>
+        /// <returns></returns>
         public string Ping(int ID)
         {
             using (var db = new DatabaseContext())
@@ -218,13 +257,29 @@ namespace WebbShopAPI
             }
         }
 
+        /// <summary>
+        /// Denna metod registrerar en ny användare. Om användaren matar in ett tomt värde så sätts ett defaultlösenord
+        /// </summary>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        /// <param name="passwordVerify"></param>
+        /// <returns></returns>
         public bool Register(string username, string password, string passwordVerify)
         {
             using (var db = new DatabaseContext())
             {
                 bool create = false;
                 var user = db.Users.FirstOrDefault(u => u.Name == username);
-                if (user == null && password == passwordVerify)
+                if (user == null && String.IsNullOrEmpty(password) == true)
+                {
+                    db.Users.Add(new User
+                    {
+                        Name = username
+                    });
+                    db.SaveChanges();
+                    create = true;
+                }
+                else if (user == null && password == passwordVerify)
                 {
                     db.Users.Add(new User
                     {
@@ -238,6 +293,16 @@ namespace WebbShopAPI
             }
         }
 
+        /// <summary>
+        /// Denna metod lägger till en bok i databasen om den inte finns. Om boken redan finns så fylls det på med nya böcker istället.
+        /// </summary>
+        /// <param name="adminID"></param>
+        /// <param name="bookID"></param>
+        /// <param name="title"></param>
+        /// <param name="author"></param>
+        /// <param name="price"></param>
+        /// <param name="amount"></param>
+        /// <returns></returns>
         public bool AddBook(int adminID, int bookID, string title, string author, int price, int amount)
         {
             using (var db = new DatabaseContext())
@@ -251,6 +316,7 @@ namespace WebbShopAPI
                     book.Amount += amount;
                     addBook = true;
                     db.SaveChanges();
+                    Ping(adminID);
                 }
                 else if (book == null && user != null && user.IsAdmin == true && user.SessionTimer > DateTime.Now)
                 {
@@ -261,13 +327,21 @@ namespace WebbShopAPI
                         Price = price,
                         Amount = amount
                     });
-                    db.SaveChanges();
                     addBook = true;
+                    db.SaveChanges();
+                    Ping(adminID);
                 }
                 return addBook;
             }
         }
 
+        /// <summary>
+        /// Denna metod ställer in hur många kopior av angedd bok som ska finnas.
+        /// </summary>
+        /// <param name="adminID"></param>
+        /// <param name="bookID"></param>
+        /// <param name="amount"></param>
+        /// <returns></returns>
         public bool SetAmount(int adminID, int bookID, int amount)
         {
             using (var db = new DatabaseContext())
@@ -281,11 +355,17 @@ namespace WebbShopAPI
                     book.Amount = amount;
                     newAmount = true;
                     db.SaveChanges();
+                    Ping(adminID);
                 }
                 return newAmount;
             }
         }
 
+        /// <summary>
+        /// Denna metod returnerar en lista av alla användare i databasen.
+        /// </summary>
+        /// <param name="adminID"></param>
+        /// <returns></returns>
         public List<User> ListUsers(int adminID)
         {
             using (var db = new DatabaseContext())
@@ -298,11 +378,18 @@ namespace WebbShopAPI
                     {
                         userList.Add(user);
                     }
+                    Ping(adminID);
                 }
                 return userList;
             }
         }
 
+        /// <summary>
+        /// Denna metod söker efter användare som matchar parametern och returnerar en lista.
+        /// </summary>
+        /// <param name="adminID"></param>
+        /// <param name="keyword"></param>
+        /// <returns></returns>
         public List<User> FindUser(int adminID, string keyword)
         {
             using (var db = new DatabaseContext())
@@ -318,11 +405,21 @@ namespace WebbShopAPI
                             userList.Add(user);
                         }
                     }
+                    Ping(adminID);
                 }
                 return userList;
             }
         }
 
+        /// <summary>
+        /// Denna metoden uppdaterar värden hos en bok med hjälp av parametrar.
+        /// </summary>
+        /// <param name="adminID"></param>
+        /// <param name="bookID"></param>
+        /// <param name="title"></param>
+        /// <param name="author"></param>
+        /// <param name="price"></param>
+        /// <returns></returns>
         public bool UpdateBook(int adminID, int bookID, string title, string author, int price)
         {
             using (var db = new DatabaseContext())
@@ -337,12 +434,19 @@ namespace WebbShopAPI
                     book.Author = author;
                     book.Price = price;
                     bookUpdate = true;
+                    Ping(adminID);
                     db.SaveChanges();
                 }
                 return bookUpdate;
             }
         }
 
+        /// <summary>
+        /// Denna metod tar bort en bok ifrån databasen.
+        /// </summary>
+        /// <param name="adminID"></param>
+        /// <param name="bookID"></param>
+        /// <returns></returns>
         public bool DeleteBook(int adminID, int bookID)
         {
             using (var db = new DatabaseContext())
@@ -355,12 +459,19 @@ namespace WebbShopAPI
                 {
                     bookDelete = true;
                     db.Books.Remove(book);
+                    Ping(adminID);
                     db.SaveChanges();
                 }
                 return bookDelete;
             }
         }
 
+        /// <summary>
+        /// Denna metod lägger till en kategori.
+        /// </summary>
+        /// <param name="adminID"></param>
+        /// <param name="category"></param>
+        /// <returns></returns>
         public bool AddCategory(int adminID, string category)
         {
             using (var db = new DatabaseContext())
@@ -375,13 +486,21 @@ namespace WebbShopAPI
                     {
                         Name = category
                     });
-                    db.SaveChanges();
                     categoryAdd = true;
+                    Ping(adminID);
+                    db.SaveChanges();
                 }
                 return categoryAdd;
             }
         }
 
+        /// <summary>
+        /// Denna metod lägger till en bok till en kategori.
+        /// </summary>
+        /// <param name="adminID"></param>
+        /// <param name="bookID"></param>
+        /// <param name="category"></param>
+        /// <returns></returns>
         public bool AddBookToCategory(int adminID, int bookID, string category)
         {
             using (var db = new DatabaseContext())
@@ -395,12 +514,19 @@ namespace WebbShopAPI
                 {
                     book.CategoryID = bookCategory.ID;
                     bookAdd = true;
+                    Ping(adminID);
                     db.SaveChanges();
                 }
                 return bookAdd;
             }
         }
 
+        /// <summary>
+        /// Denna metod tar bort en kategori.
+        /// </summary>
+        /// <param name="adminID"></param>
+        /// <param name="categoryID"></param>
+        /// <returns></returns>
         public bool DeleteCategory(int adminID, int categoryID)
         {
             using (var db = new DatabaseContext())
@@ -413,12 +539,20 @@ namespace WebbShopAPI
                 {
                     db.BookCategory.Remove(category);
                     categoryDelete = true;
+                    Ping(adminID);
                     db.SaveChanges();
                 }
                 return categoryDelete;
             }
         }
 
+        /// <summary>
+        /// Denna metod lägger till en användare. Om användaren matar in ett tomt värde så sätts ett defaultlösenord.
+        /// </summary>
+        /// <param name="adminID"></param>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
         public bool AddUser(int adminID, string username, string password)
         {
             using (var db = new DatabaseContext())
@@ -434,8 +568,9 @@ namespace WebbShopAPI
                         Name = username,
                         Password = password
                     });
-                    db.SaveChanges();
                     addUser = true;
+                    Ping(adminID);
+                    db.SaveChanges();
                 }
 
                 // Om lösenordet är tomt så sätts ett defaultlösenordet som är "CodicRulez", notera String.IsNullOrEmpty(password) i if satsen.
@@ -445,13 +580,19 @@ namespace WebbShopAPI
                     {
                         Name = username
                     });
-                    db.SaveChanges();
                     addUser = true;
+                    Ping(adminID);
+                    db.SaveChanges();
                 }
                 return addUser;
             }
         }
 
+        /// <summary>
+        /// Denna metod returnerar en lista på alla böcker som har sålts.
+        /// </summary>
+        /// <param name="adminID"></param>
+        /// <returns></returns>
         public List<SoldBooks> SoldItems(int adminID)
         {
             using (var db = new DatabaseContext())
@@ -465,11 +606,17 @@ namespace WebbShopAPI
                     {
                         soldBooks.Add(book);
                     }
+                    Ping(adminID);
                 }
                 return soldBooks;
             }
         }
 
+        /// <summary>
+        /// Denna metod returnerar summan av alla pengar som bokaffären har tjänat.
+        /// </summary>
+        /// <param name="adminID"></param>
+        /// <returns></returns>
         public int MoneyEarned(int adminID)
         {
             using (var db = new DatabaseContext())
@@ -484,33 +631,44 @@ namespace WebbShopAPI
                     {
                         sum += book.Price;
                     }
+                    Ping(adminID);
                 }
                 return sum;
             }
         }
 
-        public void BestCustomer(int adminID)
+        /// <summary>
+        /// Denna metoden returnerar användaren som har handlat flest böcker.
+        /// Kod inspirerad av https://stackoverflow.com/a/355977 vid rad 660.
+        /// </summary>
+        /// <param name="adminID"></param>
+        public User BestCustomer(int adminID)
         {
             using (var db = new DatabaseContext())
             {
                 var user = db.Users.FirstOrDefault(u => u.ID == adminID);
-                List<SoldBooks> customerList = new List<SoldBooks>();
+                List<int> customerList = new List<int>();
 
                 if (user != null && user.IsAdmin && user.SessionTimer > DateTime.Now)
                 {
-                    var bestCustomer = db.SoldBooks.GroupBy(q => q.UserID).ToList(); //.OrderByDescending(gp => gp.Count()).Take(5).Select(g => g.Key).ToList();
-                    Console.WriteLine(bestCustomer[1]);
-                    //for (int i = 0; i < customerList.Count; i++)
-                    //{
-                    //    if (i == customerList[i].UserID)
-                    //    {
-
-                    //    }
-                    //}
+                    foreach (var book in db.SoldBooks)
+                    {
+                        customerList.Add(book.UserID);
+                    }
+                    Ping(adminID);
                 }
+                var bestCustomerID = customerList.GroupBy(c => c).OrderByDescending(c => c.Count()).Select(c => c.Key).First();
+                var bestCustomer = db.Users.FirstOrDefault(u => u.ID == bestCustomerID);
+                return bestCustomer;
             }
         }
 
+        /// <summary>
+        /// Denna metoden uppgraderar en användare till adminstatus.
+        /// </summary>
+        /// <param name="adminID"></param>
+        /// <param name="userID"></param>
+        /// <returns></returns>
         public bool Promote(int adminID, int userID)
         {
             using (var db = new DatabaseContext())
@@ -523,12 +681,19 @@ namespace WebbShopAPI
                 {
                     user.IsAdmin = true;
                     promote = true;
+                    Ping(adminID);
                     db.SaveChanges();
                 }
                 return promote;
             }
         }
 
+        /// <summary>
+        /// Denna metoden demotar en användare till vanlig user status.
+        /// </summary>
+        /// <param name="adminID"></param>
+        /// <param name="userID"></param>
+        /// <returns></returns>
         public bool Demote(int adminID, int userID)
         {
             using (var db = new DatabaseContext())
@@ -541,12 +706,19 @@ namespace WebbShopAPI
                 {
                     user.IsAdmin = false;
                     demote = true;
+                    Ping(adminID);
                     db.SaveChanges();
                 }
                 return demote;
             }
         }
 
+        /// <summary>
+        /// Denna metoden aktiverar en användares konto.
+        /// </summary>
+        /// <param name="adminID"></param>
+        /// <param name="userID"></param>
+        /// <returns></returns>
         public bool ActivateUser(int adminID, int userID)
         {
             using (var db = new DatabaseContext())
@@ -559,12 +731,19 @@ namespace WebbShopAPI
                 {
                     user.IsActive = true;
                     activate = true;
+                    Ping(adminID);
                     db.SaveChanges();
                 }
                 return activate;
             }
         }
 
+        /// <summary>
+        /// Denna metoden inaktiverar en användares konto. Om en användares konto är inaktiverat så fungerar inte Login() metoden.
+        /// </summary>
+        /// <param name="adminID"></param>
+        /// <param name="userID"></param>
+        /// <returns></returns>
         public bool InactivateUser(int adminID, int userID)
         {
             using (var db = new DatabaseContext())
@@ -577,6 +756,7 @@ namespace WebbShopAPI
                 {
                     user.IsActive = false;
                     inactivate = true;
+                    Ping(adminID);
                     db.SaveChanges();
                 }
                 return inactivate;

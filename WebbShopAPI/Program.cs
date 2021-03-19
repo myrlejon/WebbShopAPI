@@ -7,13 +7,16 @@ namespace WebbShopAPI
 {
     class Program : WebbShopAPI
     {
+        /// <summary>
+        /// I main metoden så körs Seed() metoden om det är första gången som programmet starts.
+        /// Härifrån så utförs alla API metoder.
+        /// </summary>
         static void Main()
         {
             var API = new WebbShopAPI();
             Seeder.Seed();
-            var test = API.Login("test", "secret");
-            //API.InactivateUser(1, 3);
-            Console.WriteLine(test);
+            API.Login("Administrator", "CodicRulez");
+            var list = API.ListUsers(1);
         }
     }
 }
