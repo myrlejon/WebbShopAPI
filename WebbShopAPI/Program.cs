@@ -15,8 +15,8 @@ namespace WebbShopAPI
         {
             var API = new WebbShopAPI();
             Seeder.Seed();
-            API.Login("Administrator", "CodicRulez");
-            var list = API.ListUsers(1);
+            //API.Login("Administrator", "CodicRulez");
+            //API.Login("TestCustomer", "Codic2021");
         }
     }
 }

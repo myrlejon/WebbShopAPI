@@ -56,14 +56,16 @@ namespace WebbShopAPI
         /// <summary>
         /// Denna metod listar upp alla bokkategorier.
         /// </summary>
-        public void GetCategories()
+        public List<BookCategory> GetCategories()
         {
             using (var db = new DatabaseContext())
             {
+                List<BookCategory> categoryList = new List<BookCategory>();
                 foreach (var book in db.BookCategory)
                 {
-                    Console.WriteLine(book.Name);
+                    categoryList.Add(book);
                 }
+                return categoryList;
             }
         }
 
@@ -258,7 +260,7 @@ namespace WebbShopAPI
         }
 
         /// <summary>
-        /// Denna metod registrerar en ny användare. Om användaren matar in ett tomt värde så sätts ett defaultlösenord
+        /// Denna metod registrerar en ny användare. Om användaren matar in ett tomt värde så sätts ett defaultlösenord.
         /// </summary>
         /// <param name="username"></param>
         /// <param name="password"></param>

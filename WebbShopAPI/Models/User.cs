@@ -7,7 +7,6 @@ namespace WebbShopAPI.Models
     {
         [Key]
         public int ID { get; set; }
-
         public string Name { get; set; }
         public string Password { get; set; } = "CodicRulez";
         public DateTime SessionTimer { get; set; } = DateTime.Now;
