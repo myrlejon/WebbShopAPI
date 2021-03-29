@@ -25,7 +25,7 @@ namespace WebbShopAPI
             {
                 var user = db.Users.FirstOrDefault(u => u.Name == username);
 
-                if (username == user.Name && password == user.Password && user.IsActive)
+                if (user != null && username == user.Name && password == user.Password && user.IsActive)
                 {
                     user.SessionTimer = DateTime.Now;
                     DateTime newTime = user.SessionTimer.AddMinutes(15);
@@ -50,6 +50,26 @@ namespace WebbShopAPI
                 user.SessionTimer = DateTime.Now;
                 db.SaveChanges();
                 return user.SessionTimer;
+            }
+        }
+
+        /// <summary>
+        /// Denna metoden kollar ifall användaren är en admin.
+        /// </summary>
+        /// <param name="username"></param>
+        /// <returns></returns>
+        public bool IsAdmin(string username)
+        {
+            bool admin = false;
+            using (var db = new DatabaseContext())
+            {
+                var user = db.Users.FirstOrDefault(u => u.Name == username);
+
+                if (user != null && user.IsAdmin == true)
+                {
+                    admin = true;
+                }
+                return admin;
             }
         }
 
