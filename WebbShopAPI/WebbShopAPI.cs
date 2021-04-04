@@ -42,19 +42,24 @@ namespace WebbShopAPI
         /// </summary>
         /// <param name="ID"></param>
         /// <returns></returns>
-        public DateTime Logout(int ID)
+        public bool Logout(int ID)
         {
             using (var db = new DatabaseContext())
             {
+                bool logout = false;
                 var user = db.Users.FirstOrDefault(u => u.ID == ID);
-                user.SessionTimer = DateTime.Now;
+                if (user != null)
+                {
+                    logout = true;
+                    user.SessionTimer = DateTime.Now;
+                }
                 db.SaveChanges();
-                return user.SessionTimer;
+                return logout;
             }
         }
 
         /// <summary>
-        /// Denna metoden kollar ifall användaren är en admin.
+        /// Denna metoden kollar ifall användaren har IsAdmin satt till true eller false.
         /// </summary>
         /// <param name="username"></param>
         /// <returns></returns>
